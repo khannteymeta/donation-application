@@ -1,0 +1,39 @@
+name: CI/CD NestJS + Docker Compose
+
+on:
+  push:
+    branches:
+      - develop   # Trigger on develop
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Deploy to VPS via SSH
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd ${{ secrets.VPS_PROJECT_PATH }}
+
+            git fetch --all
+            git reset --hard origin/develop
+
+            docker-compose down
+            docker-compose up -d --build
+
+            docker ps
