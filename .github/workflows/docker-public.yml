@@ -1,9 +1,9 @@
-name: CI/CD NestJS + Docker Compose
+name: donation
 
 on:
   push:
-    branches:
-      - develop   # Trigger on develop
+    branches: ["main"]
+      
 
 jobs:
   deploy:
@@ -31,9 +31,12 @@ jobs:
             cd ${{ secrets.VPS_PROJECT_PATH }}
 
             git fetch --all
-            git reset --hard origin/develop
+            git reset --hard origin/main
 
             docker-compose down
             docker-compose up -d --build
 
             docker ps
+
+
+
